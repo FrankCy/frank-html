@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>layui.dtree渲染菜单并实现需求</title>
+    <script src="/static/common/jquery/jquery.min.js"></script>
+    <script src="/static/layui/layui.js"></script>
+    <script src="/static/layui/dtree.js"></script>
+    <link rel="stylesheet" href="/static/layui/layui.css">
+    <link rel="stylesheet" href="/static/layui/dtree.css">
+</head>
+<body>
+<div id="menu"></div>
+<script>
+    layui.use(['dtree'], function () {
+        var dtree = layui.dtree;
+        var data = [{"checked":false,"children":[{"checked":false,"children":[{"checked":false,"children":[],"disabled":false,"id":"b943efe2f97d42ecbbff60d5ffb7cc7f","parentId":"fd2cf6412b9c496995442016d0786314","reserveContent":"{}","sort":0,"spread":true,"title":"菜单13","type":"0"}],"disabled":false,"id":"fd2cf6412b9c496995442016d0786314","parentId":"c6722bab688e4ac2b66667abaea4bf64","reserveContent":"{}","sort":0,"spread":true,"title":"菜单1","type":"0"},{"checked":false,"children":[{"checked":false,"children":[],"disabled":false,"id":"9eb5d745868a4fba81980aa129137608","parentId":"81e77df3d6d4400a8799d6faf443642c","reserveContent":"{}","sort":0,"spread":true,"title":"菜单22","type":"0"},{"checked":false,"children":[],"disabled":false,"id":"fbadc17575324969b6e47acfe0c6e557","parentId":"81e77df3d6d4400a8799d6faf443642c","reserveContent":"{}","sort":0,"spread":true,"title":"菜单23","type":"0"},{"checked":false,"children":[],"disabled":false,"id":"1a48818041e54b499166e17928142940","parentId":"81e77df3d6d4400a8799d6faf443642c","reserveContent":"{}","sort":1,"spread":true,"title":"菜单21","type":"0"}],"disabled":false,"id":"81e77df3d6d4400a8799d6faf443642c","parentId":"c6722bab688e4ac2b66667abaea4bf64","reserveContent":"{}","sort":0,"spread":true,"title":"菜单2","type":"0"},{"checked":false,"children":[],"disabled":false,"id":"32549afc8dad44288400c44d726b10d5","parentId":"c6722bab688e4ac2b66667abaea4bf64","reserveContent":"{}","sort":0,"spread":true,"title":"菜单3","type":"0"}],"disabled":false,"id":"c6722bab688e4ac2b66667abaea4bf64","parentId":"dev-test","sort":0,"spread":true,"title":"普通菜单","type":"0"},{"checked":false,"children":[],"disabled":false,"id":"3709843b73024ed1a6c2b01ac62df67a","parentId":"dev-test","sort":0,"spread":true,"title":"普通菜单111","type":"0"},{"checked":false,"children":[],"disabled":false,"id":"f7d9b81ba98e4a43a25e0c3acb58a5fb","parentId":"dev-test","sort":0,"spread":true,"title":"普通菜单","type":"0"}];
+
+        // 渲染菜单
+        dtree.render({
+            elem: "#menu",
+            data: data,
+            initLevel: 1, // 初始化展开级别，默认为2
+            ficon: "-1", // 自定义父节点图标
+            icon: "-1", // 自定义节点图标
+            accordion: true // 开启手风琴模式
+        });
+
+        // 获取选中的节点id
+        function getCheckedIds() {
+            var checked = dtree.getCheckbarNodesParam("menu"); // 获取所有选中节点的参数
+            var ids = [];
+            for (var i = 0; i < checked.length; i++) {
+                ids.push(checked[i].nodeId);
+            }
+            return ids;
+        }
+
+        // 根据id串选中节点
+        function selectNodesByIds(ids) {
+            var tree = dtree.getTree("menu"); // 获取树对象
+            for (var i = 0; i < ids.length; i++) {
+                var node = tree.getNodeById(ids[i]);
+                if (node) {
+                    dtree.changeCheckbarNodes("menu", [node]); // 选中节点
+                    var parentNode = tree.getParentNode(node);
+                    while (parentNode) { // 递归选中父节点
+                        dtree.changeCheckbarNodes("menu", [parentNode]);
+                        parentNode = tree.getParentNode(parentNode);
+                    }
+                }
+            }
+        }
+
+        // 页面加载完毕后自动选中节点
+        $(document).ready(function () {
+            var ids = ["f7d9b81ba98e4a43a25e0c3acb58a5fb", "81e77df3d6d4400a8799d6faf443642c"];
+            selectNodesByIds(ids);
+        });
+
+        // 监听菜单树的选中事件
+        dtree.on("node('menu')", function (obj) {
+            if (obj.elem.checked) { // 如果选中
+                var node = obj.param; // 获取当前节点
+                var tree = dtree.getTree("menu"); // 获取树对象
+                var parentNode = tree.getParentNode(node); // 获取父节点
+                while (parentNode) { // 递归选中父节点
+                    dtree.changeCheckbarNodes("menu", [parentNode]);
+                    parentNode = tree.getParentNode(parentNode);
+                }
+            } else { // 如果取消选中
+                var node = obj.param; // 获取当前节点
+                var tree = dtree.getTree("menu"); // 获取树对象
+                var childNodes = tree.getChildrenNode(node); // 获取子节点
+                for (var i = 0; i < childNodes.length; i++) {
+                    dtree.changeCheckbarNodes("menu", [childNodes[i]], false); // 取消选中子节点
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>
