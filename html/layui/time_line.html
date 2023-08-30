@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>时间线弹出框示例</title>
+    <title>时间线分页示例</title>
     <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.5.7/css/layui.min.css">
     <style>
         .timeline {
@@ -28,47 +28,106 @@
 </head>
 <body>
 <div class="timeline">
-    <div class="layui-flow-more layui-hide">
-        <div class="layui-flow-anim layui-anim-upbit">
-            加载中...
-        </div>
+    <div id="timeline-content">
+        <!-- 时间线项将会动态追加到这里 -->
     </div>
+    <button id="load-more-btn" class="layui-btn layui-btn-primary layui-btn-radius">加载更多</button>
 </div>
 
+<script src="https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdn.staticfile.org/layui/2.5.7/layui.min.js"></script>
 <script>
-    layui.use(['layer', 'flow'], function(){
-        var layer = layui.layer;
-        var flow = layui.flow;
+    $(document).ready(function() {
+        layui.use(['layer'], function() {
+            var layer = layui.layer;
+            var page = 1; // 当前页码
+            var limit = 10; // 每页加载的条目数量
+            var data = [
+                { time: '2023-08-28 10:12:00', action: '用户A进行了某项操作。' },
+                { time: '2023-08-27 14:36:00', action: '用户A进行了另一项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                { time: '2023-08-26 09:24:00', action: '用户A进行了第三项操作。' },
+                { time: '2023-08-25 16:58:00', action: '用户A进行了第四项操作。' },
+                { time: '2023-08-24 13:42:00', action: '用户A进行了第五项操作。' },
+                // 更多数据...
+            ];
 
-        // 模拟数据，这里可以替换成实际的接口请求
-        var data = [
-            { time: '2023-08-28 10:12:00', action: '用户A进行了某项操作。' },
-            { time: '2023-08-27 14:36:00', action: '用户A进行了另一项操作。' },
-            { time: '2023-08-27 14:37:00', action: '用户A进行了另一项操作。' },
-            { time: '2023-08-27 14:38:00', action: '用户A进行了另一项操作。' },
-            { time: '2023-08-27 14:39:00', action: '用户A进行了另一项操作。' },
-            { time: '2023-08-27 14:40:00', action: '用户A进行了另一项操作。' },
-            { time: '2023-08-27 14:41:00', action: '用户A进行了另一项操作。' },
-            { time: '2023-08-27 14:42:00', action: '用户A进行了另一项操作。' },
-            { time: '2023-08-27 14:43:00', action: '用户A进行了另一项操作。' },
-            { time: '2023-08-27 14:44:00', action: '用户A进行了另一项操作。' },
-            { time: '2023-08-27 14:45:00', action: '用户A进行了另一项操作。' },
-            { time: '2023-08-27 14:46:00', action: '用户A进行了另一项操作。' },
-            { time: '2023-08-27 14:47:00', action: '用户A进行了另一项操作。' },
-            { time: '2023-08-27 14:48:00', action: '用户A进行了另一项操作。' },
-            // 更多数据...
-        ];
-
-        // 加载时间线数据
-        function loadTimeline(page, limit) {
-            // 模拟延迟请求
-            setTimeout(function() {
+            // 加载时间线数据
+            function loadTimeline() {
+                console.log('加载了。。。。。')
+                console.log('page：'+page)
                 var startIndex = (page - 1) * limit;
                 var endIndex = startIndex + limit;
                 var timelineData = data.slice(startIndex, endIndex);
                 var html = '';
-                layui.each(timelineData, function(index, item) {
+                console.log('startIndex：'+startIndex)
+                console.log('endIndex：'+endIndex)
+                $.each(timelineData, function(index, item) {
                     html += '<div class="timeline-item">' +
                         '<div class="layui-timeline-content layui-text">' +
                         '<h3 class="layui-timeline-title">' + item.time + '</h3>' +
@@ -77,26 +136,31 @@
                         '</div>';
                 });
                 if (html !== '') {
-                    layer.open({
-                        type: 1,
-                        title: '用户行动轨迹',
-                        content: '<div class="timeline layui-text">' + html + '</div>',
-                        area: ['500px', '400px']
-                    });
-                }
-                else {
+                    $('#timeline-content').append(html);
+                    page++; // 增加页码
+                } else {
                     layer.msg('没有更多数据了');
                 }
-            }, 500); // 模拟延迟时间，可根据实际情况调整
-        }
-
-        // 初始化时间线
-        flow.load({
-            elem: '.timeline',
-            done: function(page, next){
-                loadTimeline(page, 5); // 每页显示5条数据
-                next('', page < 3); // 假设总共有3页数据
             }
+
+            // 初始化加载时间线数据
+            loadTimeline();
+
+            // 点击"加载更多"按钮时加载数据
+            $('#load-more-btn').click(function() {
+                loadTimeline();
+            });
+
+            // 监听滚动事件
+            $(window).scroll(function() {
+                var scrollTop = $(window).scrollTop();
+                var windowHeight = $(window).height();
+                var documentHeight = $(document).height();
+                // 判断是否滚动到页面底部
+                if (scrollTop + windowHeight >= documentHeight) {
+                    loadTimeline();
+                }
+            });
         });
     });
 </script>
